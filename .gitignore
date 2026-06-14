@@ -1,0 +1,15 @@
+# Pastas de IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Mac/Windows
+.DS_Store
+Thumbs.db
+
+# Variaveis de Ambiente
+.env
