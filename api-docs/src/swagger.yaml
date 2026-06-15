@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
   title: API - Cabeleleila Leila (DSIN)
   description: API REST para gestão de agendamentos e usuários do salão.
@@ -6,26 +6,316 @@ info:
 
 servers:
   - url: http://localhost:8080
-    description: Servidor Java Spring Boot (Local)
+    description: Local Environment
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Authentication/Users
+    description: Account creation and management
+  - name: Service Catalog
+    description: Available salon services
+  - name: Appointments
+    description: Client scheduling operations
+  - name: Administration
+    description: Management and performance tracking
 
 paths:
-
   # HEALTH CHECK
   /health:
     get:
       tags:
         - Health
       summary: Check API Health
-      description: Verifica se o servidor está online e pronto para receber requisições.
+      description: Verification about server
       operationId: checkHealth
       responses:
-        '200':
+        "200":
           description: API is up and running
+
+  # AUTHENTICATION, USERS & SERVICES
+  /auth/login:
+    post:
+      tags: [Authentication/Users]
+      summary: User and Admin login (Generates JWT Token)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Successfully authenticated
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "UP"
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid email or password
+
+  /users:
+    post:
+      tags: [Authentication/Users]
+      summary: Register a new user (Client)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRequest"
+      responses:
+        "201":
+          description: User successfully created
+
+  /services:
+    get:
+      tags: [Service Catalog]
+      summary: List all available salon services
+      responses:
+        "200":
+          description: Success
+
+  # APPOINTMENTS (CLIENT)
+  /appointments:
+    post:
+      tags: [Appointments]
+      summary: Create a new appointment for one or more services
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentRequest"
+      responses:
+        "201":
+          description: Appointment successfully created
+        "400":
+          description: Business Rule Violation (e.g., Weekly limit)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized (Token missing or invalid)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden (Insufficient permissions)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /appointments/history:
+    get:
+      tags: [Appointments]
+      summary: Retrieve client's appointment history
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: History list retrieved successfully
+
+  /appointments/{id}:
+    get:
+      tags: [Appointments]
+      summary: Get detailed information of a specific appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment details
+    put:
+      tags: [Appointments]
+      summary: Update an existing appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentRequest"
+      responses:
+        "200":
+          description: Appointment updated successfully
+        "403":
+          description: Update blocked (Less than 48 hours in advance)
+
+  # ADMINISTRATION (LEILA)
+  /admin/appointments:
+    get:
+      tags: [Administration]
+      summary: List all salon appointments
+      responses:
+        "200":
+          description: Full list of appointments
+
+  /admin/appointments/{id}/reschedule:
+    put:
+      tags: [Administration]
+      summary: Force update an appointment (Bypasses 48h rule)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newDateTime:
+                  type: string
+                  format: date-time
+                  example: "2026-06-25T10:00:00"
+      responses:
+        "200":
+          description: Administrative update successful
+
+  /admin/appointments/{id}/confirm:
+    patch:
+      tags: [Administration]
+      summary: Confirm a client's appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment confirmed
+
+  /admin/appointments/items/{itemId}/status:
+    patch:
+      tags: [Administration]
+      summary: Update the status of a specific service item
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [PENDING, COMPLETED, CANCELED]
+      responses:
+        "200":
+          description: Item status updated
+
+  /admin/dashboard/metrics:
+    get:
+      tags: [Administration]
+      summary: Generate weekly performance report
+      responses:
+        "200":
+          description: Performance report generated successfully
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "leila@admin.com"
+        password:
+          type: string
+          example: "senhaSegura123"
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT Bearer Token for authorization
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        type:
+          type: string
+          example: "Bearer"
+        role:
+          type: string
+          description: Defines if the user is a CLIENT or ADMIN
+          example: "ADMIN"
+
+    UserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+
+    AppointmentRequest:
+      type: object
+      required:
+        - dateTime
+        - serviceIds
+      properties:
+        dateTime:
+          type: string
+          format: date-time
+          example: "2026-06-20T14:30:00Z"
+        serviceIds:
+          type: array
+          items:
+            type: integer
+          example: [1, 3]
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
