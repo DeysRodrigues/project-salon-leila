@@ -15,8 +15,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 /**
@@ -24,9 +25,9 @@ import lombok.NoArgsConstructor;
  * scheduling parameters, ownership binding to a specific user, the generalized
  * state of the booking, and orchestrates the associated service items.
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "tb_appointments")
 public class Appointment {
@@ -45,6 +46,7 @@ public class Appointment {
     @Column(nullable = false)
     private String status; // Expected states: PENDING, CONFIRMED, CANCELED
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AppointmentItem> items = new ArrayList<>();
 }
