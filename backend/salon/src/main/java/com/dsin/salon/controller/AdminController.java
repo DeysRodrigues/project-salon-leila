@@ -1,12 +1,12 @@
 package com.dsin.salon.controller;
 
+import com.dsin.salon.dto.request.AppointmentRequestDTO;
 import com.dsin.salon.model.Appointment;
 import com.dsin.salon.model.AppointmentItem;
 import com.dsin.salon.service.AppointmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -26,11 +26,16 @@ public class AdminController {
         return ResponseEntity.ok(appointmentService.getAllAppointments());
     }
 
-    // RF07: Administrative reschedule (ignores 48h rule)
-    @PutMapping("/{id}/reschedule")
-    public ResponseEntity<Appointment> adminReschedule(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        LocalDateTime newDateTime = LocalDateTime.parse(body.get("newDateTime"));
-        return ResponseEntity.ok(appointmentService.rescheduleAppointment(id, newDateTime, true));
+    // RF07: Administrative update (ignores 48h rule)
+    @PutMapping("/{id}")
+    public ResponseEntity<Appointment> adminUpdate(@PathVariable Long id, @RequestBody AppointmentRequestDTO request) {
+        return ResponseEntity.ok(appointmentService.updateAppointment(id, request, true));
+    }
+
+    // RF07: Administrative cancel (ignores 48h rule)
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<Appointment> adminCancel(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.cancelAppointment(id, true));
     }
 
     // RF09: Confirm appointment
