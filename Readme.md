@@ -120,9 +120,9 @@ O projeto conta com uma suite de testes unitarios no backend para garantir a int
 
 ### Video de Demonstracao
 
-<video controls src="frontend/public/Video Project 1.mp4" title="Title"></video>
+<video controls src="frontend/public/video.mp4" title="Title"></video>
 
-[Assista ao vídeo de demonstração aqui](frontend/public/Video%20Project%201.mp4)
+[Assista ao vídeo de demonstração aqui](frontend/public/video.mp4)
 
 
 ---
