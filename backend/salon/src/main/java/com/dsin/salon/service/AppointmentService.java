@@ -64,14 +64,18 @@ public class AppointmentService {
             return item;
         }).collect(Collectors.toList());
 
-        appointment.setItems(items);
+        appointment.getItems().addAll(items);
         return appointmentRepository.save(appointment);
     }
 
     /**
      * RF05: Retrieves the appointment history for a specific client.
+     * Supports optional date range filtering.
      */
-    public List<Appointment> getUserHistory(Long userId) {
+    public List<Appointment> getUserHistory(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate != null && endDate != null) {
+            return appointmentRepository.findByUserIdAndDateTimeBetween(userId, startDate, endDate);
+        }
         return appointmentRepository.findByUserId(userId);
     }
 
@@ -91,17 +95,66 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found."));
 
+        validateModificationWindow(appointment, isAdmin);
+
+        appointment.setDateTime(newDateTime);
+        return appointmentRepository.save(appointment);
+    }
+
+    /**
+     * RF02 & RF07: Updates an existing appointment (date and services).
+     */
+    @Transactional
+    public Appointment updateAppointment(Long appointmentId, AppointmentRequestDTO request, boolean isAdmin) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found."));
+
+        validateModificationWindow(appointment, isAdmin);
+
+        appointment.setDateTime(request.getDateTime());
+
+        // Update items without replacing the collection instance
+        appointment.getItems().clear();
+
+        List<AppointmentItem> newItems = request.getServiceIds().stream().map(serviceId -> {
+            ServiceCatalog service = serviceCatalogRepository.findById(serviceId)
+                    .orElseThrow(() -> new RuntimeException("Service not found: " + serviceId));
+
+            AppointmentItem item = new AppointmentItem();
+            item.setAppointment(appointment);
+            item.setServiceCatalog(service);
+            item.setStatus("PENDING");
+            return item;
+        }).collect(Collectors.toList());
+
+        appointment.getItems().addAll(newItems);
+        return appointmentRepository.save(appointment);
+    }
+
+    /**
+     * RF02 & RF07: Cancels an appointment.
+     */
+    @Transactional
+    public Appointment cancelAppointment(Long appointmentId, boolean isAdmin) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found."));
+
+        validateModificationWindow(appointment, isAdmin);
+
+        appointment.setStatus("CANCELED");
+        appointment.getItems().forEach(item -> item.setStatus("CANCELED"));
+        return appointmentRepository.save(appointment);
+    }
+
+    private void validateModificationWindow(Appointment appointment, boolean isAdmin) {
         if (!isAdmin) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime deadlineToChange = appointment.getDateTime().minusHours(48);
 
             if (now.isAfter(deadlineToChange)) {
-                throw new RuntimeException("Business Rule (RF03): Rescheduling is only allowed at least 48 hours in advance. Please contact the salon by phone.");
+                throw new RuntimeException("Business Rule (RF03/RF02): Modifications are only allowed at least 48 hours in advance. Please contact the salon by phone.");
             }
         }
-
-        appointment.setDateTime(newDateTime);
-        return appointmentRepository.save(appointment);
     }
 
     /**
