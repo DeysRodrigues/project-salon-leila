@@ -5,7 +5,7 @@
 **Status:** Aceito
 
 **1. Contexto**
-O projeto exige a entrega de um sistema web com regras de negócio claras (como o bloqueio de alterações de agendamento em menos de 2 dias e a sugestão inteligente de datas na mesma semana) dentro de um prazo curto, com entrega final no dia 15/06/2026. A solução será desenvolvida utilizando o ecossistema Java com Spring Boot no servidor e React na interface do cliente. O código precisa demonstrar conhecimento em arquiteturas e frameworks, além de manter alta manutenibilidade e organização, conforme solicitado nas instruções.
+O projeto exige a entrega de um sistema web com regras de negócio claras (como o bloqueio de alterações de agendamento em menos de 2 dias e a sugestão inteligente de datas na mesma semana) dentro de um prazo curto. A solução será desenvolvida utilizando o ecossistema Java com Spring Boot no servidor e React na interface do cliente. O código precisa demonstrar conhecimento em arquiteturas e frameworks, além de manter alta manutenibilidade e organização, conforme solicitado nas instruções.
 
 **2. Decisão Arquitetural**
 
@@ -20,4 +20,4 @@ Adoção do padrão arquitetural MVC estruturado em camadas (Controller, Service
 **4. Consequências**
 
 - **Positivas:** Rapidez na implementação da infraestrutura inicial; curva de entrega acelerada; facilidade para aplicar validações de dados diretamente nas classes utilizando anotações.
-- **Negativas:** Leve acoplamento das regras de domínio às bibliotecas e especificidades do framework (Spring/JPA), reduzindo a portabilidade do código para outras linguagens ou frameworks no futuro.1
+- **Negativas:** Leve acoplamento das regras de domínio às bibliotecas e especificidades do framework (Spring/JPA), reduzindo a portabilidade do código para outras linguagens ou frameworks no futuro.
