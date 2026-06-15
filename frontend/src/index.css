@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+
+  --color-primary: #795347;
+  --color-primary-container: #946b5e;
+  --color-on-primary: #ffffff;
+  
+  --color-background: #fff8f5;
+  --color-on-background: #1e1b18;
+  
+  --color-surface: #fff8f5;
+  --color-on-surface: #1e1b18;
+  --color-on-surface-variant: #514440;
+  
+  --color-surface-container: #f5ece7;
+  --color-surface-container-high: #efe6e2;
+  --color-surface-container-low: #fbf2ed;
+  
+  --color-outline: #837470;
+  --color-outline-variant: #d5c3be;
+
+  /* shadcn UI compatibility colors */
+  --color-foreground: #1e1b18;
+  --color-muted: #f5ece7;
+  --color-muted-foreground: #514440;
+  --color-accent: #f5ece7;
+  --color-accent-foreground: #1e1b18;
+  --color-destructive: #ba1a1a;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #d5c3be;
+  --color-input: #d5c3be;
+  --color-ring: #795347;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@layer base {
+  :root {
+    --background: #fff8f5;
+    --foreground: #1e1b18;
+    --card: #fff8f5;
+    --card-foreground: #1e1b18;
+    --popover: #fff8f5;
+    --popover-foreground: #1e1b18;
+    --primary: #795347;
+    --primary-foreground: #ffffff;
+    --secondary: #605e5c;
+    --secondary-foreground: #ffffff;
+    --muted: #f5ece7;
+    --muted-foreground: #514440;
+    --accent: #f5ece7;
+    --accent-foreground: #1e1b18;
+    --destructive: #ba1a1a;
+    --destructive-foreground: #ffffff;
+    --border: #d5c3be;
+    --input: #d5c3be;
+    --ring: #795347;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: #1e1b18;
+    --foreground: #fff8f5;
+    --card: #1e1b18;
+    --card-foreground: #fff8f5;
+    --popover: #1e1b18;
+    --popover-foreground: #fff8f5;
+    --primary: #edbbad;
+    --primary-foreground: #2f140b;
+    --secondary: #cac6c3;
+    --secondary-foreground: #1d1b1a;
+    --muted: #34302c;
+    --muted-foreground: #d5c3be;
+    --accent: #34302c;
+    --accent-foreground: #fff8f5;
+    --destructive: #ffdad6;
+    --destructive-foreground: #93000a;
+    --border: #514440;
+    --input: #514440;
+    --ring: #edbbad;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+  }
+}
+
+.soft-gradient {
+  background: linear-gradient(135deg, rgba(255,248,245,1) 0%, rgba(245,236,231,1) 100%);
+}
