@@ -122,5 +122,8 @@ O projeto conta com uma suite de testes unitarios no backend para garantir a int
 
 <video controls src="frontend/public/Video Project 1.mp4" title="Title"></video>
 
+[Assista ao vídeo de demonstração aqui](frontend/public/Video%20Project%201.mp4)
+
+
 ---
 Desenvolvido como parte do desafio tecnico para a DSIN.
